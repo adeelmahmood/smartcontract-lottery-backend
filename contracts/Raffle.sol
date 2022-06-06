@@ -9,11 +9,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 error Raffle__NotEnoughEntranceFee();
 error Raffle__TransferFailed();
 error Raffle__NotOpened();
-error Raffle__UpkeepNotNeeded(
-    uint256 balance,
-    uint256 numPlayers,
-    uint256 raffleState
-);
+error Raffle__UpkeepNotNeeded(uint256 balance, uint256 numPlayers, uint256 raffleState);
 
 contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     enum RaffleState {
@@ -60,11 +56,6 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     }
 
     function enterRaffle() public payable {
-        console.log(
-            "%s is attempting to enter raffle with amount %s",
-            msg.sender,
-            msg.value
-        );
         // require entrance fee
         if (msg.value < i_entraceFee) {
             revert Raffle__NotEnoughEntranceFee();
@@ -72,6 +63,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         if (s_raffleState != RaffleState.OPEN) {
             revert Raffle__NotOpened();
         }
+        // console.log("player %s entering raffle with fee %s", msg.sender, msg.value);
         s_players.push(payable(msg.sender));
         emit RaffleEntered(msg.sender);
     }
@@ -170,5 +162,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getLatestTimestamp() public view returns (uint256) {
         return s_lastTimestamp;
+    }
+
+    function getInterval() public view returns (uint256) {
+        return s_interval;
     }
 }
