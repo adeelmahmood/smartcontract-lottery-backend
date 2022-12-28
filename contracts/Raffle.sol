@@ -5,16 +5,23 @@ import "hardhat/console.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 error Raffle__NotEnoughEntranceFee();
 error Raffle__TransferFailed();
 error Raffle__NotOpened();
 error Raffle__UpkeepNotNeeded(uint256 balance, uint256 numPlayers, uint256 raffleState);
 
-contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
+contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface, ERC721 {
     enum RaffleState {
         OPEN,
         CALCULATING
+    }
+
+    function tokenURI(
+        uint256 /*tokenId*/
+    ) public pure override returns (string memory) {
+        return "ipfs://QmdwJ23vVttro1tL1gaitQk6ygW8dhNYawMUtfvPPB1wAt";
     }
 
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
@@ -44,7 +51,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint64 subscriptionId,
         uint32 callbackGasLimit,
         uint256 interval
-    ) VRFConsumerBaseV2(vrfCoordinator) {
+    ) VRFConsumerBaseV2(vrfCoordinator) ERC721("SampleNft", "SNT") {
         i_entraceFee = entranceFee;
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinator);
         i_gasLane = gasLane;
@@ -166,5 +173,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getInterval() public view returns (uint256) {
         return s_interval;
+    }
+
+    function getTestName() public pure returns (string memory) {
+        return "My name is Raffle";
     }
 }
